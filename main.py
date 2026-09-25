@@ -20,7 +20,7 @@ DB_PATH = os.environ.get(
 )
 ROOT_URL = os.environ.get(
     'ROOT_URL',
-    'http://localhost:8000'
+    'https://tamucrew-attendance.up.railway.app/'
 )
 STORAGE_SECRET = os.environ.get(
     'STORAGE_SECRET',
