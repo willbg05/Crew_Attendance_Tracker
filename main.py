@@ -4,8 +4,6 @@ from fastapi.responses import FileResponse
 
 from nicegui import ui
 
-import uvicorn as uv
-
 import sqlite3 as sql
 
 import datetime as dt
@@ -28,10 +26,13 @@ STORAGE_SECRET = os.environ.get(
     'STORAGE_SECRET',
     'dev-secret'
 )
+EXPORT_PATH = os.environ.get(
+    'EXPORT_PATH',
+    'attendance_export.csv'
+)
 todays_password = False
-ROOT_URL = "tbd"
-QR_PATH = 'attendance_qr.png'
 
+QR_PATH = 'attendance_qr.png'
 qr = qrcode.make(ROOT_URL)
 qr.save(QR_PATH)
 
@@ -46,7 +47,8 @@ cursor.execute("""
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    squad TEXT NOT NULL
+    squad TEXT NOT NULL,
+    UNIQUE(name,squad)
 )
 """)
 
@@ -72,13 +74,13 @@ CREATE TABLE IF NOT EXISTS passwords (
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS admin (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL,
+    username TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL
 )
 """)
 
 cursor.execute("""
-INSERT INTO admin (username, password) 
+INSERT OR IGNORE INTO admin (username, password) 
 VALUES ('tamucrew', 'crewcest')
 """)
 db.commit()
@@ -292,7 +294,7 @@ def attendance_query(period):
 def export_attendance_csv(period):
     rows = attendance_query(period)
 
-    file_path = '/content/attendance_export.csv'
+    file_path = EXPORT_PATH
 
     with open(
         file_path,
@@ -356,10 +358,11 @@ def pw_page() -> None:
 def attendance_page() -> None:
 
   def handle_sign_in(name) -> None:
-    if sign_in(name):
+    result = sign_in(name)
+    if result is True:
       ui.notify('Signed In')
       ui.timer(3, lambda: ui.navigate.to('/'), once=True)
-    elif sign_in(name) == "-1":
+    elif result == "-1":
       ui.notify('Already Signed In')
       ui.timer(3, lambda: ui.navigate.to('/'), once=True)
     else:
