@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS admin (
 
 cursor.execute("""
 INSERT INTO admin (username, password) 
-VALUES ('Tamucrew', 'Reveille1876')
+VALUES ('tamucrew', 'crewcest')
 """)
 db.commit()
 
