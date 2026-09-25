@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+nicegui
+qrcode[pil]
+python-multipart
